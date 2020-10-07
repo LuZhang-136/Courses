@@ -1,0 +1,154 @@
+---
+title: "Basic Concept of Statistics"
+author: "Paolo Girardi and Livio Finos"
+date: "8/10/2020"
+output:
+  pdf_document:
+    highlight: haddock
+    latex_engine: xelatex
+    toc: yes
+  html_document:
+    df_print: paged
+    toc: yes
+---
+\newpage
+\begin{center}
+Ph.D. Course in Neuroscience   
+Calendar of the Basic Courses – Academic Year 2020-2021   
+Basic Concept of Statistics   
+\  
+Lesson 2 - Optional and preliminary course on use of R  
+\end{center}
+
+# Descriptive Statistics
+
+## Univariate Statistical Analysis with R  
+
+We import the dataset test.csv  
+
+```{r}
+test<-read.csv("test.csv",sep=";",header=T,dec=",")
+head(test) #the first 6 rows
+str(test)
+summary(test)
+```
+
+### Analysis of the Age variable  
+
+```{r}
+# A histogram with the density plot
+hist(test$Age,prob=T)
+lines(density(test$Age),col=2)
+```
+The distribution is skewed. A qqplot can be used to visualise the distribution 
+```{r}
+qqnorm(test$Age)
+qqline(test$Age,col=2,lty=2)
+```
+The graph reports the comparison between the theoretical quantile of a Normal distribution and quantiles of the variabile Age. If the points follow the red line, a normal distribution can be assumed.  
+
+The function \textit{boxplot()} 
+```{r}
+boxplot(test$Age)
+```
+
+### Analysis of the BMI variable  
+
+```{r}
+# A histogram with the density plot
+hist(test$BMI,prob=T)
+lines(density(test$BMI),col=2)
+```
+The distribution looks simmetric but there is the presence of outliers (values to low and to high respect to the central cloud)
+```{r}
+qqnorm(test$BMI)
+qqline(test$BMI,col=2,lty=2)
+```
+The QQplot confirms the presence of anomalous values of BMI.     
+A unique plot with many boxplots.  
+```{r}
+par(mfrow=c(1,3)) # 1  row 3 cols
+boxplot(test$Age,xlab="Age")
+boxplot(test$BMI,xlab="BMI")
+boxplot(test$ACT,xlab="ACT")
+par(mfrow=c(1,1))
+```
+
+### Analysis of the Education variable  
+
+```{r}
+# A barplot with the density plot
+plot(test$Education)
+```
+
+The barplot reports the frequency of each modality of the categorical variable.
+But in this variable there is an order.
+So we define the order as follows  
+
+```{r}
+#here the levels
+levels(test$Education)
+test$Education<-factor(test$Education,levels=
+c("lower primary","primary","upper primary",
+"secondary","degree","post-degree"),ordered =TRUE)
+plot(test$Education) # here is ordered
+```
+
+Here a pie plot
+
+```{r}
+pie(table(test$Education))
+```
+
+The function \textit{table()} permits to obtain a frequency table
+
+```{r}
+table(test$Education)
+#or a relative frequency table with the function prop.table()
+prop.table(table(test$Education))
+```
+
+## Bivariate Statistical Analysis with R 
+The dataset reported the results of 150 subjects on ACT e SAT tests.  
+Some variables influences the performances.
+
+### Quantitative vs qualitative variables
+```{r}
+#ACT vs Gender and Education
+boxplot(test$ACT~test$Gender)
+boxplot(test$ACT~test$Education)
+```
+
+```{r}
+#SATV vs Gender and Education
+boxplot(test$SATV~test$Gender)
+boxplot(test$SATV~test$Education)
+```
+
+
+```{r}
+#SATQ vs Gender and Education
+boxplot(test$SATQ~test$Gender)
+boxplot(test$SATQ~test$Education)
+```
+
+
+### Quantitative vs Quantitative variables
+
+```{r}
+#ACT vs Age
+plot(test$Age,test$ACT)
+cor(test$Age,test$ACT) # pearson
+cor(test$Age,test$ACT,method="spearman") # spearman
+```
+
+```{r}
+#ACT vs BMI
+plot(test$BMI,test$ACT)
+cor(test$BMI,test$ACT,method="spearman") # spearman
+```
+```{r}
+#ACT vs Stress
+plot(test$Stress,test$ACT)
+cor(test$Stress,test$ACT,method="spearman") # spearman
+```

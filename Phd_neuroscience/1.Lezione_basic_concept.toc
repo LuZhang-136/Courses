@@ -1,0 +1,24 @@
+\contentsline {section}{Basic use of R}{2}{section*.2}% 
+\contentsline {subsection}{Working-space and helps}{2}{section*.3}% 
+\contentsline {subsection}{Basic operation}{2}{section*.4}% 
+\contentsline {subsection}{Vectors and Matrix}{3}{section*.5}% 
+\contentsline {subsection}{Type of ojects in R}{5}{section*.6}% 
+\contentsline {subsection}{Import a dataset}{6}{section*.7}% 
+\contentsline {section}{Reproducible Statistical Analysis with R-Markdown}{7}{section*.8}% 
+\contentsline {subsection}{Why use R-Markdown}{7}{section*.9}% 
+\contentsline {subsection}{Create a R-markdown file}{7}{section*.10}% 
+\contentsline {subsection}{Create an Rmd report}{7}{section*.11}% 
+\contentsline {subsection}{Compareing the markup to the output}{9}{section*.12}% 
+\contentsline {subsection}{What the software is doing}{9}{section*.13}% 
+\contentsline {subsection}{Changing the output format}{10}{section*.14}% 
+\contentsline {subsection}{Formatting the output}{10}{section*.15}% 
+\contentsline {subsection}{Markdown basics}{10}{section*.16}% 
+\contentsline {subsubsection}{Section headings}{10}{section*.17}% 
+\contentsline {subsubsection}{Emphasis}{10}{section*.18}% 
+\contentsline {subsubsection}{Itemize}{10}{section*.19}% 
+\contentsline {subsubsection}{Enumerate}{10}{section*.20}% 
+\contentsline {subsection}{Including Plots}{11}{section*.21}% 
+\contentsline {section}{Data visualization and base statistics with R}{11}{section*.22}% 
+\contentsline {subsection}{The normal distribution}{11}{section*.23}% 
+\contentsline {subsection}{To build a function in R}{13}{section*.24}% 
+\contentsline {subsection}{Basic statistics function with R}{13}{section*.25}% 
