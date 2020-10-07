@@ -1,15 +1,13 @@
 Accademic Courses materials
 =====================================================================================
 
-[Paolo Girardi](mailto://paolo.girardi@unipd.it)
+[Paolo Girardi](mailto://paolo.girardi@unipd.it)  
      Department of Developmental and Social Psychology  
      Università di Padova  
      Via Venezia 8,  
      I-35131 Padua, Italy   
 
-  
-
-This repository collect materials of Accademic Course at DPSS.
+This repository collect materials of accademic courses.
 
 PhD in Neuroscience
 --------
