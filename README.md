@@ -7,7 +7,7 @@ Accademic Courses materials
      Via Venezia 8,  
      I-35131 Padua, Italy   
 
-This repository collect materials of accademic courses.
+This repository collects materials and files of accademic courses.
 
 PhD in Neuroscience
 --------
