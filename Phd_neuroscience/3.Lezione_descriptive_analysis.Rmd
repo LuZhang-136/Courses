@@ -1,0 +1,309 @@
+---
+title: "Descriptive Statistical Analysis with R"
+author: "Paolo Girardi and Livio Finos"
+date: "15/10/2020"
+output:
+  pdf_document:
+  highlight: haddock
+latex_engine: xelatex
+toc: yes
+---
+\newpage
+
+Ph.D. Course in Neuroscience    
+Calendar of the Basic Courses – Academic Year 2020-2021   
+Basic Concept of Statistics
+
+Lesson 3 - Descriptive Statistical Analysis with R and tests
+
+
+# First phases
+Descriptive analysis is used to describe the basic features of the data in the study. They provide simple summaries about the sample and the measures. Together with simple graphical analysis, they form the basic virtual of any quantitative analysis of data.
+
+```{r}
+# remove all in the R environment
+rm(list=ls())
+```
+
+Now we import a dataset in EXCEL format. Let's install a package to do that (package \textbf{readxl}).  
+
+```{r}
+# if not installed, digit install.packages("readxl")
+library(readxl)
+```
+
+Now we import the dataset "cat_ex.xlsx" in EXCEL format. 
+
+```{r}
+setwd("/Users/Paolo/Dropbox/Dottorato_Neurosciences")
+DATASET <- read_excel("cat_ex.xlsx")
+```
+
+Let's see what we have imported.
+
+```{r}
+View(DATASET)
+dim(DATASET)
+str(DATASET)
+DATASET=as.data.frame(DATASET)
+
+# 
+```
+   
+The data is formed by 21 subjects who took part in a study measuring the cognitive ability through a verbal fluency test. The study enrolled healthy controls (11) and subjects with the Parkison Disease (10).   
+
+The test consisted on:  
+  - a phonological fluency test with the use of three letters (different at each condition);  
+- a semantic fluency test using three categories (the type of condition is reported in the variable "condizioni").  
+
+We have 5 variables:  
+- ID: subject ID  
+- Gruppi: HC= Healthy Control; LE=Parkison Disease   
+- Condizioni: type of "subject" on the fluency test  
+- Y1: Phonemic fluency index: Z-score on the fluency test - Phonemic   
+- Y2: Semantic fluency index: Z-score on the fluency test - Semantic   
+
+```{r}
+DATASET$Gruppi=factor(DATASET$Gruppi)
+DATASET$condizioni=factor(DATASET$condizioni)
+str(DATASET)
+# We can change the name
+names(DATASET)
+names(DATASET)[4:5]<-c("Phonemic","Semantic")
+names(DATASET)
+# I can calculate the difference between the Z-score on phonological and semantic test.
+DATASET$delta=DATASET$Phonemic-DATASET$Semantic
+DATASET$delta
+
+```
+
+\newpage
+
+# Univariate analysis  
+ 
+A simple way is to perform a separate analysis for each variable.  
+
+```{r}
+table(DATASET$Id)
+# 3 tests for each ID
+table(DATASET$Gruppi)
+# 33 for HC, 30 for LE
+table(DATASET$condizioni)
+# Condition is repeacted 21 times each ID
+
+#Some indices for the quantitative variables
+summary(DATASET$Phonemic)
+summary(DATASET$Semantic)
+summary(DATASET$delta)
+
+# other indices
+mean(DATASET$Phonemic)
+sd(DATASET$Phonemic)
+
+median(DATASET$Phonemic)
+IQR(DATASET$Phonemic)
+``` 
+
+Some Figures:  
+  
+```{r}
+#Histogram
+hist(DATASET$Phonemic, breaks = 20,col="red")
+hist(DATASET$Semantic, breaks = 20,col="green")
+#Together
+par(mfrow=c(2,1))
+hist(DATASET$Phonemic, breaks = 20,col="red")
+hist(DATASET$Semantic, breaks = 20,col="green")
+par(mfrow=c(1,1))
+
+#Boxplot
+boxplot(DATASET$Phonemic, breaks = 20,col="red")
+#the presence of an outlier... I can limit the y axis extension from -1 to 1.
+boxplot(DATASET$Phonemic, breaks = 20,col="red",ylim=c(-1,1))
+boxplot(DATASET$Semantic, breaks = 20,col="green")
+par(mfrow=c(1,2))
+boxplot(DATASET$Phonemic, breaks = 20,col="red",ylim=c(-1,2),main="Phonemic scores")
+boxplot(DATASET$Semantic, breaks = 20,col="green",ylim=c(-1,2),main="Semantic scores")
+par(mfrow=c(1,1))
+```
+
+\newpage
+
+# Bivariate analysis
+
+We use a package ("tabs") to produce table (to export in Latex, Word, Html).  
+
+```{r}
+# if not installed, digit install.packages("tab")
+library(tab)
+# we use the function tabmulti, please see tabmulti help (?tabmulti)
+#table by variable " Gruppi"
+tab1<-tabmulti(data=DATASET, condizioni+Phonemic+Semantic+delta~Gruppi)
+# The numeric variables are summarized with MEAN and SD ad a p-value with t.test. I can change to MEDIAN and IQR as follows
+library(knitr)
+kable(tab1)
+tab1b<-tabmulti(data=DATASET, condizioni+Phonemic+Semantic+delta~Gruppi,
+                ymeasures = c("freq","median","median","median"))
+#p.values are performed with a non parametric mann-withney test
+kable(tab1b)
+# I can export the tables in HTML format by means of print.html = TRUE, html.filename = "table1.html" parameter
+
+# By condition
+tab2<-tabmulti(data=DATASET, Phonemic+Semantic+delta~condizioni)
+kable(tab2)
+```
+
+And some bivariate graphs, Phonemic score.  
+
+```{r}
+# by Gruppi
+boxplot(DATASET$Phonemic~DATASET$Gruppi)
+# add limits and colours
+boxplot(DATASET$Phonemic~DATASET$Gruppi,ylim=c(-1,1),col=c("red","green"))
+#by condizioni
+boxplot(DATASET$Phonemic~DATASET$condizioni,ylim=c(-1,1),col=1:3)
+```
+
+Semantic score   
+
+```{r}
+# by Gruppi
+boxplot(DATASET$Semantic~DATASET$Gruppi)
+# add limits and colours
+boxplot(DATASET$Semantic~DATASET$Gruppi,col=c("red","green"))
+#by condizioni
+boxplot(DATASET$Semantic~DATASET$condizioni,col=1:3)
+```
+
+We can generate statistical analysis by means of functions done by ourselves.
+In particular we are going to use the library "doBy" that permits to perform a function by an other variable.  
+
+```{r}
+# if not installed, digit install.packages("doBy")
+library(doBy)
+#This function calculate for a numeric vector 
+# MEAN, MEDIAN, VARIANCE AND THE LENGTH
+fun <- function(x){
+  c(m=mean(x), me=median(x), v=var(x), n=length(x))
+}
+#I use the function summaryBy to apply the function "fun" by type of the variable "Gruppi" and "Condizioni"
+summaryBy(Semantic ~ condizioni+Gruppi, data=DATASET,
+          FUN=fun)
+
+summaryBy(cbind(delta,Phonemic) ~ condizioni+Gruppi, data=DATASET,
+          FUN=fun)
+
+```
+
+\newpage
+# More attractive graphs with GGplot2 package
+
+
+This package (GGplot2) offers to us the possibility to create elegant data visualisations. Please visit:  
+  
+https://ggplot2.tidyverse.org/
+
+```{r}
+# if not installed, digit install.packages("ggplot2")
+library(ggplot2)
+# an instogram
+gg=ggplot(DATASET, aes(x=delta,color="black", fill="red")) + 
+  geom_histogram(bins=10)
+gg
+# we add a mean line
+gg=gg+ geom_vline(aes(xintercept=mean(delta)),
+                  color="blue", linetype="dashed", size=1)
+gg
+# we add a smoothed density line
+gg=ggplot(DATASET, aes(x=delta,y=..density..,color="black", fill="red")) + 
+  geom_histogram(bins=10)+
+  geom_density(alpha=.2, fill="#FF6666")
+gg
+
+# a boxplot
+p <- ggplot(DATASET, aes(x=Gruppi, y=Phonemic,fill=Gruppi)) + 
+  geom_boxplot()
+p
+# change y-axis limits
+p <- ggplot(DATASET, aes(x=Gruppi, y=Phonemic,fill=Gruppi)) + 
+  geom_boxplot()+ylim(c(-1,1))
+p
+```
+
+\newpage
+# How to perform a statistical test in R  
+
+The type of the required test depends (mainly...) on:  
+- the type of selected variable   
+- the statistical assumptions made  
+- the distribution of the variabile  
+- the type of statistics chosen  
+- .... 
+
+In our dataset we can do several testing hyphotesis...   
+... express your research hypothesis!
+
+A research hypothesis: "Is the distribution of the semantic score different among the two groups?"  
+
+With R, try to explain how  a test can be performed to verify that research hypothesis.
+
+```{r}
+boxplot(DATASET$Semantic~DATASET$Gruppi)
+#There is a difference
+summaryBy(Semantic~Gruppi,DATASET,FUN=summary)
+#a difference median of 0.44, mean 0.11
+```
+
+We are interested to verify if the mean of the semantic scores is equal or different in the two groups. First of all... is the distribution of the semantic score normally distributed?
+```{r}
+hist(DATASET$Semantic)
+par(mfrow=c(1,2))
+hist(DATASET$Semantic[DATASET$Gruppi=="HC"])
+hist(DATASET$Semantic[DATASET$Gruppi=="LE"])
+par(mfrow=c(1,1))
+
+#....to verify if the Semantic is normally distributed
+################### we use a Shapiro Test.... shapiro.test()
+# H0 Y~N(m,s2)
+shapiro.test(DATASET$Semantic)
+#p-value <0.05, but 0.01.... with alpha=0.05 I reject the Hyphotesis of normally distibution, but...
+shapiro.test(DATASET$Semantic[DATASET$Gruppi=="HC"])
+shapiro.test(DATASET$Semantic[DATASET$Gruppi=="LE"])
+#quite different in the two sub-samples
+
+```
+
+## Parametric test - T of Student test
+
+If the normal distribution can be assumed we choice to perform a T of Student test.  Assumptions:
+- $Y_i$ ~ N($\mu_{HC}$,$\sigma^2_{HC}$) for $i=1,...,33$;  
+- $Y_i$ ~ N($\mu_{LE}$,$\sigma^2_{LE}$) for $i=34,...,63$;   
+- for each $i \neq j$, $Y_i$ and $Y_j$ are uncorrelated  (hmmm this is may be a problem, the student can try to say why...):
+
+$H_0$: $\mu_{HC}=\mu_{LE}$   
+$H_A$: $\mu_{HC} \neq \mu_{LE}$   
+
+```{r}
+#Is the variance of the two groups the same?
+var(DATASET$Semantic[DATASET$Gruppi=="HC"]) 
+var(DATASET$Semantic[DATASET$Gruppi=="LE"]) 
+#similar, there is also a test for that
+var.test(DATASET$Semantic~DATASET$Gruppi)
+# p>>>>0.05
+t.test(DATASET$Semantic~DATASET$Gruppi,var.equal=TRUE)
+###### T.TEST with equal variance between the two groups 
+# I accept that the mean of the semantic score is the same between the groups
+```
+
+## Non parametric test - Mann-Whitney test
+If the normal distribution can NOT be assumed we may choice to perform a Mann-Whitney test.  
+
+$H_0$: $Y_{HC}=Y_{LE}$   
+$H_A$: $Y_{HC} \neq Y_{LE}$    
+
+where $Y_{HC}$ and $Y_{LE}$ are the "unknown" distributions of the semantic score in HC and LE group.  
+
+```{r}
+wilcox.test(DATASET$Semantic~DATASET$Gruppi)
+# As before... I do not reject H_0
+```
