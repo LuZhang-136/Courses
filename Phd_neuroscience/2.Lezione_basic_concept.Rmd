@@ -1,71 +1,99 @@
 ---
 title: "Basic Concept of Statistics"
 author: "Paolo Girardi and Livio Finos"
-date: "8/10/2020"
+date: "15/10/2020"
 output:
   pdf_document:
     highlight: haddock
     latex_engine: xelatex
     toc: yes
-  html_document:
-    df_print: paged
-    toc: yes
 ---
 \newpage
-\begin{center}
-Ph.D. Course in Neuroscience   
-Calendar of the Basic Courses – Academic Year 2020-2021   
-Basic Concept of Statistics   
+
+Ph.D. Course in Neuroscience    
+Calendar of the Basic Courses – Academic Year 2020-2021    
+Basic Concept of Statistics    
 \  
-Lesson 2 - Optional and preliminary course on use of R  
-\end{center}
+Lesson 2 - Optional and preliminary course on use of R   
+
 
 # Descriptive Statistics
+In R some useful functions for the descriptive analysis are:  
+\begin{tabular}{ll}
+- plot(x, y): & bivariate plot of x (on the x-axis) and y (on the y-axis);\\
+- hist(x): & histogram of the frequencies of x\\
+- barplot(x): & histogram of the values of x; use horiz=FALSE for horizontal bars\\
+- dotchart(x): & if x is a data frame, plots a Cleveland dot plot (stacked plots line-by- line and column-by-column)\\
+- pie(x): & circular pie-chart\\
+- boxplot(x): & box-and-whiskers plot\\
+- stripplot(x): & plot of the values of x on a line (an alternative to boxplot() for small sample sizes)\\
+- mosaicplot(x):& mosaic plot from frequencies in a contingency table\\
+- qqnorm(x): & quantiles of x with respect to the values expected under a normal law\\
+\end{tabular}
 
 ## Univariate Statistical Analysis with R  
 
-We import the dataset test.csv  
+We import the dataset test.csv   
 
 ```{r}
+# we set the Work Directory
+setwd("/Users/Paolo/Dropbox/Dottorato_Neurosciences/2020_2021")
+# import the test.csv file
 test<-read.csv("test.csv",sep=";",header=T,dec=",")
 head(test) #the first 6 rows
 str(test)
 summary(test)
 ```
 
-### Analysis of the Age variable  
+This dataset is formed by the first 150 subjects of a larger dataset.
+The dataset reported some information about the SAT and ACT test, performed on people during some job's selection.
 
+### Analysis of the Age variable  
+ 
 ```{r}
 # A histogram with the density plot
+summary(test$Age)
 hist(test$Age,prob=T)
 lines(density(test$Age),col=2)
 ```
-The distribution is skewed. A qqplot can be used to visualise the distribution 
+
+The distribution is skewed, in particular few numbers after 40 years old. A qqplot can be used to visualise the distribution 
 ```{r}
 qqnorm(test$Age)
 qqline(test$Age,col=2,lty=2)
 ```
-The graph reports the comparison between the theoretical quantile of a Normal distribution and quantiles of the variabile Age. If the points follow the red line, a normal distribution can be assumed.  
+The graph reports the comparison between the theoretical quantile of a Normal distribution and quantiles of the variabile Age. If the points follow the red line, a normal distribution can be assumed.   
 
-The function \textit{boxplot()} 
+
+The function \textit{boxplot()} performs (box and whiskers plot) as follows  
+
+
 ```{r}
 boxplot(test$Age)
 ```
 
 ### Analysis of the BMI variable  
+The BMI (Body Mass Index) is the ratio between weight/height.  
+
 
 ```{r}
 # A histogram with the density plot
+summary(test$BMI)
 hist(test$BMI,prob=T)
 lines(density(test$BMI),col=2)
 ```
-The distribution looks simmetric but there is the presence of outliers (values to low and to high respect to the central cloud)
+
+The distribution looks simmetric but there is the presence of outliers (values to low and to high respect to the central cloud).  
+
 ```{r}
 qqnorm(test$BMI)
 qqline(test$BMI,col=2,lty=2)
 ```
 The QQplot confirms the presence of anomalous values of BMI.     
+
+
 A unique plot with many boxplots.  
+
 ```{r}
 par(mfrow=c(1,3)) # 1  row 3 cols
 boxplot(test$Age,xlab="Age")
@@ -77,13 +105,12 @@ par(mfrow=c(1,1))
 ### Analysis of the Education variable  
 
 ```{r}
-# A barplot with the density plot
-plot(test$Education)
+# A barplot with the frequency
+barplot(table(test$Education))
 ```
 
 The barplot reports the frequency of each modality of the categorical variable.
-But in this variable there is an order.
-So we define the order as follows  
+But this variable has an order. So we define the order as follows:  
 
 ```{r}
 #here the levels
@@ -94,61 +121,132 @@ c("lower primary","primary","upper primary",
 plot(test$Education) # here is ordered
 ```
 
-Here a pie plot
+Here a pie plot  
 
 ```{r}
 pie(table(test$Education))
 ```
 
-The function \textit{table()} permits to obtain a frequency table
+The function \textit{table()} permits to obtain a frequency table  
 
 ```{r}
 table(test$Education)
 #or a relative frequency table with the function prop.table()
 prop.table(table(test$Education))
 ```
+### Analysis of the Stress variable  
+
+The variable Stress is an integer values expressed on a likert scale (the common question:"How much are you stressed from 1 to 6?"). The likert scale is not numeric (variable on ratio scale), but it is an ordinal variable.  
+With the command \textit{factor()} R can set a factor, a categorical variable, even if it is formed by numbers.
+
+```{r}
+is(test$Stress)
+test$Stress<-factor(test$Stress)
+table(test$Stress)
+#or a relative frequency table with the function prop.table()
+prop.table(table(test$Stress))
+# the same for the variable social 
+test$Social<-factor(test$Social)
+```
 
 ## Bivariate Statistical Analysis with R 
 The dataset reported the results of 150 subjects on ACT e SAT tests.  
-Some variables influences the performances.
+Some variables influences the performances.  
+
+We try to reply to the question: "What are the factors that influenced the ACT, SATV and SATQ test?"  
+
 
 ### Quantitative vs qualitative variables
 ```{r}
 #ACT vs Gender and Education
 boxplot(test$ACT~test$Gender)
-boxplot(test$ACT~test$Education)
+#change colour with col argument and labels
+boxplot(test$ACT~test$Gender,col=c("red","green"),ylab="ACT",xlab="Gender")
+boxplot(test$ACT~test$Education,ylab="ACT",xlab="Education")
+boxplot(test$ACT~test$Stress,ylab="ACT",xlab="Stress")
+boxplot(test$ACT~test$Social,ylab="ACT",xlab="Social")
+
+#all the plot in a unique figure
+par(mfrow=c(2,2))
+boxplot(test$ACT~test$Gender,col=c("red","green"),ylab="ACT",xlab="Gender")
+boxplot(test$ACT~test$Education,ylab="ACT",xlab="Education")
+boxplot(test$ACT~test$Stress,ylab="ACT",xlab="Stress")
+boxplot(test$ACT~test$Social,ylab="ACT",xlab="Social")
+par(mfrow=c(1,1))
 ```
+
+Here the statistical analysis for SATV and SATQ.    
+What are the comments on these charts?  
 
 ```{r}
-#SATV vs Gender and Education
-boxplot(test$SATV~test$Gender)
-boxplot(test$SATV~test$Education)
+#SATV vs Gender and Education, Stress and Social
+boxplot(test$SATV~test$Gender,col=c("red","green"),ylab="SATV",xlab="Gender")
+boxplot(test$SATV~test$Education,ylab="SATV",xlab="Education")
+boxplot(test$SATV~test$Stress,ylab="SATV",xlab="Stress")
+boxplot(test$SATV~test$Social,ylab="SATV",xlab="Social")
 ```
 
 
 ```{r}
-#SATQ vs Gender and Education
-boxplot(test$SATQ~test$Gender)
-boxplot(test$SATQ~test$Education)
+#SATQ vs Gender and Education, Stress and Social
+boxplot(test$SATQ~test$Gender,col=c("red","green"),ylab="SATQ",xlab="Gender")
+boxplot(test$SATQ~test$Education,ylab="SATQ",xlab="Education")
+boxplot(test$SATQ~test$Stress,ylab="SATQ",xlab="Stress")
+boxplot(test$SATQ~test$Social,ylab="SATQ",xlab="Social")
 ```
-
 
 ### Quantitative vs Quantitative variables
 
+Analysis of ACT vs. Age and BMI
 ```{r}
 #ACT vs Age
 plot(test$Age,test$ACT)
-cor(test$Age,test$ACT) # pearson
-cor(test$Age,test$ACT,method="spearman") # spearman
 ```
 
+I can use some graphical parameter to have a better graph (please see ?plot or ?par for more options) :  
+
+- main, sub: title and subtitle 
+- xlab, ylab: label of the x and y axis  
+- xlim, ylim: limits of the x and y axis  
+- type: type of plot  
+- lty: type of lines  
+- pch:plot symbol  
+- cex: scale factor  
+- col: color of points etc.  
 ```{r}
-#ACT vs BMI
+#ACT vs Age
+plot(test$Age,test$ACT,pch=16,col="green",xlab="Age",ylab="ACT")
+```
+
+Pearson correlation   
+
+```{r}
+cor(test$Age,test$ACT) # pearson
+cor(test$Age,test$ACT,method="spearman") # spearman
 plot(test$BMI,test$ACT)
 cor(test$BMI,test$ACT,method="spearman") # spearman
 ```
+
 ```{r}
-#ACT vs Stress
-plot(test$Stress,test$ACT)
-cor(test$Stress,test$ACT,method="spearman") # spearman
+par(mfrow=c(1,2))
+plot(test$Age,test$SATV)
+plot(test$BMI,test$SATV)
+par(mfrow=c(1,1))
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(test$Age,test$SATQ)
+plot(test$BMI,test$SATQ)
+par(mfrow=c(1,1))
+```
+
+
+Is there a correlation between test scores (ACT, SATQ, SATV)? 
+
+
+```{r}
+plot(test[,c("ACT","SATV","SATQ")])
+cor(test[,c("ACT","SATV","SATQ")])
+cor(test[,c("ACT","SATV","SATQ")],method="spearman")
 ```

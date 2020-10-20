@@ -46,7 +46,6 @@ View(DATASET)
 dim(DATASET)
 str(DATASET)
 DATASET=as.data.frame(DATASET)
-
 # 
 ```
    
@@ -131,7 +130,7 @@ par(mfrow=c(1,1))
 
 # Bivariate analysis
 
-We use a package ("tabs") to produce table (to export in Latex, Word, Html).  
+We use a package ("tab") to produce table (to export in Latex, Word, Html).  
 
 ```{r}
 # if not installed, digit install.packages("tab")
@@ -187,8 +186,7 @@ fun <- function(x){
   c(m=mean(x), me=median(x), v=var(x), n=length(x))
 }
 #I use the function summaryBy to apply the function "fun" by type of the variable "Gruppi" and "Condizioni"
-summaryBy(Semantic ~ condizioni+Gruppi, data=DATASET,
-          FUN=fun)
+summaryBy(Semantic ~ condizioni+Gruppi, data=DATASET,FUN=fun)
 
 summaryBy(cbind(delta,Phonemic) ~ condizioni+Gruppi, data=DATASET,
           FUN=fun)
@@ -198,15 +196,14 @@ summaryBy(cbind(delta,Phonemic) ~ condizioni+Gruppi, data=DATASET,
 \newpage
 # More attractive graphs with GGplot2 package
 
-
-This package (GGplot2) offers to us the possibility to create elegant data visualisations. Please visit:  
+This package (GGplot2) offers to us the possibility to create elegant data visualisations. Please visit:
   
 https://ggplot2.tidyverse.org/
 
 ```{r}
 # if not installed, digit install.packages("ggplot2")
 library(ggplot2)
-# an instogram
+# an hinstogram
 gg=ggplot(DATASET, aes(x=delta,color="black", fill="red")) + 
   geom_histogram(bins=10)
 gg
